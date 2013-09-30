@@ -13,6 +13,7 @@ import com.dotmarketing.exception.DotHibernateException;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.ConfigUtils;
 import com.dotmarketing.util.Logger;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.tar.TarEntry;
 import org.apache.tools.tar.TarInputStream;
@@ -137,6 +138,19 @@ public class BundlePublisher extends Publisher {
 
             HibernateUtil.commitTransaction();
         } catch (Exception e) {
+            Map<Thread, StackTraceElement[]> allStacks = Thread.getAllStackTraces();
+            StringBuilder str=new StringBuilder();
+            for(Thread th : allStacks.keySet()) {
+                StackTraceElement[] el=allStacks.get(th);
+                int show=Math.min(5, el.length);
+                
+                str.append("* ").append(th.getName()).append("\n");
+                for(int x=0;x<show;x++) {
+                    str.append("                 ").append(el[x].toString()).append("\n"); 
+                }
+                
+            }
+            
             bundleSuccess = false;
             try {
                 HibernateUtil.rollbackTransaction();
